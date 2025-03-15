@@ -28,7 +28,11 @@
       "package": "com.anonymous.elevenlabsconversationalaiexporeactnative"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "web": {
+        "output": "server",
+        "bundler": "metro"
+      }
     }
   }
 }

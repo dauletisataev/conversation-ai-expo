@@ -40,3 +40,4 @@ android/*
 
 #ios - don't track as it's a demo app
 ios/*
+.vercel

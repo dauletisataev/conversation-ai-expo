@@ -1,9 +1,9 @@
 "use dom";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useConversation } from "@11labs/react";
-import { View, Pressable, StyleSheet } from "react-native";
+import { View, Pressable, StyleSheet, Animated } from "react-native";
 import type { Message } from "../components/ChatMessage";
-import { Mic } from "lucide-react-native";
+import { PhoneCall } from "lucide-react-native";
 import tools from "../utils/tools";
 
 async function requestMicrophonePermission() {
@@ -39,6 +39,31 @@ export default function ConvAiDOMComponent({
     },
     onError: (error) => console.error("Error:", error),
   });
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  // Setup the pulsing animation when connected
+  useEffect(() => {
+    if (conversation.status === "connected") {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.1,
+            duration: 1200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 1200,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      // Reset animation when disconnected
+      pulseAnim.setValue(1);
+    }
+  }, [conversation.status, pulseAnim]);
+
   const startConversation = useCallback(async () => {
     try {
       // Request microphone permission
@@ -74,36 +99,48 @@ export default function ConvAiDOMComponent({
   }, [conversation]);
 
   return (
-    <Pressable
+    <Animated.View
       style={[
-        styles.callButton,
-        conversation.status === "connected" && styles.callButtonActive,
+        styles.animatedRing,
+        conversation.status === "connected" && styles.animatedRingActive,
+        {
+          transform: [
+            { scale: conversation.status === "connected" ? pulseAnim : 1 },
+          ],
+        },
       ]}
-      onPress={
-        conversation.status === "disconnected"
-          ? startConversation
-          : stopConversation
-      }
     >
-      <View
+      <Pressable
         style={[
-          styles.buttonInner,
-          conversation.status === "connected" && styles.buttonInnerActive,
+          styles.callButton,
+          conversation.status === "connected" && styles.callButtonActive,
         ]}
+        onPress={
+          conversation.status === "disconnected"
+            ? startConversation
+            : stopConversation
+        }
       >
-        <Mic
-          size={32}
-          color="#E2E8F0"
-          strokeWidth={1.5}
-          style={styles.buttonIcon}
-        />
-      </View>
-    </Pressable>
+        <View
+          style={[
+            styles.buttonInner,
+            conversation.status === "connected" && styles.buttonInnerActive,
+          ]}
+        >
+          <PhoneCall
+            size={32}
+            color="#E2E8F0"
+            strokeWidth={1.5}
+            style={styles.buttonIcon}
+          />
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  callButton: {
+  animatedRing: {
     width: 120,
     height: 120,
     borderRadius: 60,
@@ -112,8 +149,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 24,
   },
-  callButtonActive: {
+  animatedRingActive: {
     backgroundColor: "rgba(239, 68, 68, 0.2)",
+  },
+  callButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  callButtonActive: {
+    backgroundColor: "transparent",
   },
   buttonInner: {
     width: 80,
