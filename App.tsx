@@ -90,18 +90,9 @@ export default function App() {
         </Text>
 
         <View style={styles.tutorInfo}>
-          <Text style={styles.tutorTitle}>AI Tutor Features:</Text>
-          <View style={styles.featureItem}>
-            <Text style={styles.featureText}>
-              Interactive learning sessions
-            </Text>
-          </View>
-          <View style={styles.featureItem}>
-            <Text style={styles.featureText}>Voice-guided explanations</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <Text style={styles.featureText}>Personalized assistance</Text>
-          </View>
+          <Text style={styles.tutorTitle}>
+            Click the button below to call the AI tutor:
+          </Text>
         </View>
         <View style={styles.domComponentContainer}>
           <ConvAiDOMComponent
